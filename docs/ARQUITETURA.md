@@ -194,7 +194,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | 1 | Refatoração sem backend (módulos, repositório, modelo, filtros, escape de HTML) | concluída |
 | 2 | Supabase: schema, RLS, triggers de aprovação, funções públicas, storage, seed demo ([supabase/](../supabase/README.md)) | concluída |
 | 3 | Site lendo do Supabase; remoção do adaptador mock | concluída |
-| 4 | Leads dos formulários do site | |
+| 4 | Leads dos formulários do site | concluída |
 | 5 | Painel: login e contatos/proprietários | |
 | 6 | Painel: imóveis (com proprietários e aprovação) | |
 | 7 | Fotos | |

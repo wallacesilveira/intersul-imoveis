@@ -3,8 +3,10 @@
  * Desenvolvido por Wallace Silveira · linkedin.com/in/wallacesilveira
  * © 2026 Wallace Silveira. Todos os direitos reservados.
  */
-import { escapeHtml as esc, formatPhone } from './shared/format.js';
+import { config } from './config.js';
+import { escapeHtml as esc, formatPhone, onlyDigits } from './shared/format.js';
 import { areaLabel, priceLabel, priceRangeOptions } from './shared/property-model.js';
+import { LeadError, leadRepository } from './shared/repositories/lead-repository.js';
 import { propertyRepository } from './shared/repositories/property-repository.js';
 
 const main = document.querySelector('#main-content');
@@ -18,6 +20,10 @@ const typeOptions = ['Casa', 'Apartamento', 'Terreno', 'Sala', 'Loja'];
 // Rotas de busca → finalidade (null = venda e locação).
 const searchRoutes = { '/comprar': 'sale', '/alugar': 'rent', '/imoveis': null };
 
+const whatsappUrl = (text) => `https://wa.me/${config.contact.whatsapp}?text=${encodeURIComponent(text)}`;
+const consentField = (id) => `<label class="consent" for="${id}"><input type="checkbox" id="${id}" name="consent" required><span>Autorizo a Intersul Imóveis a usar estes dados para entrar em contato sobre esta solicitação.</span></label>`;
+// Campo-armadilha: invisível para pessoas; robôs costumam preenchê-lo e o envio é descartado.
+const honeypotField = '<div class="hp-field" aria-hidden="true"><label>Não preencha este campo<input name="website" tabindex="-1" autocomplete="off"></label></div>';
 const propertyUrl = (property) => `#/imovel/${encodeURIComponent(property.code)}`;
 /** Faixas de preço da finalidade; sem finalidade, venda e locação em grupos separados. */
 const priceOptions = (purpose, selected = '') => purpose ? selectOptions(priceRangeOptions(purpose), selected) : `<optgroup label="Venda">${selectOptions(priceRangeOptions('sale'), selected)}</optgroup><optgroup label="Locação">${selectOptions(priceRangeOptions('rent'), selected)}</optgroup>`;
@@ -46,7 +52,7 @@ function formPage(kind) {
   const isSell = kind === 'sell';
   const title = isSell ? 'Quer anunciar seu imóvel?' : 'Cadastre seu imóvel';
   const intro = isSell ? 'Converse com a Intersul sobre o seu imóvel. Nossa atuação na Zona Sul começa com uma escuta cuidadosa do seu objetivo.' : 'Venda, alugue ou coloque seu imóvel sob administração da Intersul.';
-  return `<section class="page-hero"><p class="eyebrow">Proprietários</p><h1>${title}</h1><p>${intro}</p></section><section class="form-layout"><div><h2>${isSell ? 'Uma conversa começa aqui.' : 'Seu imóvel, o próximo capítulo.'}</h2><p>Preencha os dados iniciais para que a equipe entenda como podemos ajudar.</p></div><form class="form-panel lead-form"><div class="form-grid"><div class="field"><label for="name">Nome</label><input id="name" name="name" required></div><div class="field"><label for="phone">Telefone</label><input id="phone" name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999"></div><div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email"></div><div class="field"><label for="purpose">Objetivo</label><select id="purpose" name="purpose"><option>Quero vender</option><option>Quero alugar</option><option>Quero administrar</option><option>Ainda não tenho certeza</option></select></div><div class="field"><label for="type">Tipo do imóvel</label><input id="type" name="type" placeholder="Casa, apartamento, terreno..."></div><div class="field"><label for="city">Cidade</label><input id="city" name="city" placeholder="Cidade"></div><div class="field"><label for="address">Endereço</label><input id="address" name="address" placeholder="Nome da rua ou CEP" autocomplete="street-address" data-address-autocomplete></div><div class="field"><label for="number">Número</label><input id="number" name="number" placeholder="Número do imóvel" inputmode="numeric" autocomplete="address-line2"></div><div class="field field-full"><label for="complement">Complemento</label><input id="complement" name="complement" placeholder="Nº Apto - Bloco - Condomínio"></div><div class="field field-full"><label for="message">Mensagem</label><textarea id="message" name="message"></textarea></div></div><button class="button button-dark" type="submit">Enviar cadastro</button><p class="form-status" aria-live="polite"></p></form></section>`;
+  return `<section class="page-hero"><p class="eyebrow">Proprietários</p><h1>${title}</h1><p>${intro}</p></section><section class="form-layout"><div><h2>${isSell ? 'Uma conversa começa aqui.' : 'Seu imóvel, o próximo capítulo.'}</h2><p>Preencha os dados iniciais para que a equipe entenda como podemos ajudar.</p></div><form class="form-panel lead-form" data-lead-kind="owner_listing"><div class="form-grid"><div class="field"><label for="name">Nome</label><input id="name" name="name" required></div><div class="field"><label for="phone">Telefone</label><input id="phone" name="phone" required type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999"></div><div class="field"><label for="email">E-mail</label><input id="email" name="email" type="email"></div><div class="field"><label for="purpose">Objetivo</label><select id="purpose" name="purpose"><option>Quero vender</option><option>Quero alugar</option><option>Quero administrar</option><option>Ainda não tenho certeza</option></select></div><div class="field"><label for="type">Tipo do imóvel</label><input id="type" name="type" placeholder="Casa, apartamento, terreno..."></div><div class="field"><label for="city">Cidade</label><input id="city" name="city" placeholder="Cidade"></div><div class="field"><label for="address">Endereço</label><input id="address" name="address" placeholder="Nome da rua ou CEP" autocomplete="street-address" data-address-autocomplete></div><div class="field"><label for="number">Número</label><input id="number" name="number" placeholder="Número do imóvel" inputmode="numeric" autocomplete="address-line2"></div><div class="field field-full"><label for="complement">Complemento</label><input id="complement" name="complement" placeholder="Nº Apto - Bloco - Condomínio"></div><div class="field field-full"><label for="message">Mensagem</label><textarea id="message" name="message"></textarea></div>${consentField('consent')}</div>${honeypotField}<button class="button button-dark" type="submit">Enviar cadastro</button><p class="form-status" aria-live="polite"></p></form></section>`;
 }
 
 function featuredMarkup(items) {
@@ -72,7 +78,48 @@ function detailPage(property) {
   const offers = [property.forSale && 'À venda', property.forRent && 'Para locação'].filter(Boolean).join(' · ');
   const rentAlsoLine = property.forSale && property.forRent ? `<p>Locação: ${esc(priceLabel(property, 'rent'))}</p>` : '';
   const description = property.description.split(/\n{2,}/).filter((paragraph) => paragraph.trim()).map((paragraph, index) => `<p${index === 0 ? ' style="margin-top:30px"' : ''}>${esc(paragraph.trim()).replace(/\n/g, '<br>')}</p>`).join('');
-  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid"><img class="detail-image" src="${esc(property.coverUrl)}" alt="${esc(property.title)}"><div class="detail-content"><div><p class="eyebrow">${offers}</p><h2>${esc(priceLabel(property))}</h2>${rentAlsoLine}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p><a class="button button-dark" href="#/cadastre-seu-imovel">Entrar em contato</a></aside></div></section>`;
+  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid"><img class="detail-image" src="${esc(property.coverUrl)}" alt="${esc(property.title)}"><div class="detail-content"><div><p class="eyebrow">${offers}</p><h2>${esc(priceLabel(property))}</h2>${rentAlsoLine}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p>${interestForm(property)}</aside></div></section>`;
+}
+
+function interestForm(property) {
+  return `<form class="interest-form lead-form" data-lead-kind="property_interest" data-property-code="${esc(property.code)}" data-property-title="${esc(property.title)}"><div class="field"><label for="interest-name">Nome</label><input id="interest-name" name="name" autocomplete="name" required></div><div class="field"><label for="interest-phone">Telefone / WhatsApp</label><input id="interest-phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="(11) 99999-9999" required></div><div class="field"><label for="interest-email">E-mail (opcional)</label><input id="interest-email" name="email" type="email" autocomplete="email"></div><div class="field"><label for="interest-message">Mensagem</label><textarea id="interest-message" name="message">Olá! Tenho interesse no imóvel ${esc(property.code)}.</textarea></div>${consentField('interest-consent')}${honeypotField}<button class="button button-dark" type="submit">Enviar interesse</button><p class="form-status" aria-live="polite"></p></form>`;
+}
+
+function interestSuccess(form, name) {
+  const { propertyCode, propertyTitle } = form.dataset;
+  const text = `Olá! Meu nome é ${name}. Tenho interesse no imóvel ${propertyCode} (${propertyTitle}).`;
+  return `<div class="interest-success"><p class="form-status" role="status">Recebemos seu interesse. A equipe da Intersul entrará em contato em breve.</p><a class="button button-whatsapp" href="${esc(whatsappUrl(text))}" target="_blank" rel="noreferrer">Continuar no WhatsApp</a></div>`;
+}
+
+function ownerListingDetails(data) {
+  return { purpose: data.purpose, property_type: data.type, city: data.city, address: data.address, address_number: data.number, address_complement: data.complement };
+}
+
+async function submitLead(event) {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const status = form.querySelector('.form-status');
+  const button = form.querySelector('button[type="submit"]');
+  const data = Object.fromEntries(new FormData(form));
+  const kind = form.dataset.leadKind;
+  const showError = (message) => { status.textContent = message; status.classList.add('is-error'); };
+  status.textContent = '';
+  status.classList.remove('is-error');
+  if (onlyDigits(data.phone).length < 10) { showError('Informe um telefone com DDD.'); form.elements.phone.focus(); return; }
+  const label = button.textContent;
+  button.disabled = true;
+  button.textContent = 'Enviando...';
+  try {
+    await leadRepository.submit({ kind, name: data.name, phone: data.phone, email: data.email, message: data.message, propertyCode: form.dataset.propertyCode, details: kind === 'owner_listing' ? ownerListingDetails(data) : undefined, consent: data.consent === 'on', website: data.website });
+    if (kind === 'property_interest') { form.outerHTML = interestSuccess(form, data.name.trim()); return; }
+    form.reset();
+    status.textContent = 'Recebemos seus dados. A equipe da Intersul entrará em contato.';
+  } catch (error) {
+    showError(error instanceof LeadError ? error.message : 'Não foi possível enviar agora. Tente novamente ou fale com a Intersul pelo WhatsApp.');
+  } finally {
+    button.disabled = false;
+    button.textContent = label;
+  }
 }
 
 function errorPage() { return `<section class="page-hero"><p class="eyebrow">Imóveis</p><h1>Não foi possível carregar os imóveis.</h1><p>Tente novamente em instantes ou fale com a Intersul pelo telefone (11) 5521-7444.</p></section>`; }
@@ -104,10 +151,10 @@ async function render() {
   window.scrollTo(0, 0);
 }
 
-function bindInteractions() { document.querySelectorAll('.lead-form').forEach((form) => form.addEventListener('submit', (event) => { event.preventDefault(); form.querySelector('.form-status').textContent = 'Recebemos seus dados. A equipe da Intersul entrará em contato.'; form.reset(); })); document.querySelectorAll('[data-search-form]').forEach((form) => form.addEventListener('submit', (event) => { event.preventDefault(); const params = new URLSearchParams(new FormData(form)); window.location.hash = `${window.location.hash.split('?')[0]}?${params.toString()}`; })); const homeSearch = document.querySelector('[data-home-search]'); if (homeSearch) { homeSearch.querySelectorAll('[data-purpose]').forEach((tab) => tab.addEventListener('click', () => { homeSearch.dataset.purpose = tab.dataset.purpose; homeSearch.querySelectorAll('[data-purpose]').forEach((item) => item.classList.toggle('active', item === tab)); homeSearch.price.innerHTML = `<option value="">Qualquer valor</option>${priceOptions(tab.dataset.purpose === 'aluguel' ? 'rent' : 'sale')}`; })); homeSearch.addEventListener('submit', (event) => { event.preventDefault(); const params = new URLSearchParams(new FormData(homeSearch)); window.location.hash = `/${homeSearch.dataset.purpose === 'aluguel' ? 'alugar' : 'comprar'}?${params.toString()}`; }); } }
+function bindInteractions() { document.querySelectorAll('.lead-form').forEach((form) => form.addEventListener('submit', submitLead)); document.querySelectorAll('[data-search-form]').forEach((form) => form.addEventListener('submit', (event) => { event.preventDefault(); const params = new URLSearchParams(new FormData(form)); window.location.hash = `${window.location.hash.split('?')[0]}?${params.toString()}`; })); const homeSearch = document.querySelector('[data-home-search]'); if (homeSearch) { homeSearch.querySelectorAll('[data-purpose]').forEach((tab) => tab.addEventListener('click', () => { homeSearch.dataset.purpose = tab.dataset.purpose; homeSearch.querySelectorAll('[data-purpose]').forEach((item) => item.classList.toggle('active', item === tab)); homeSearch.price.innerHTML = `<option value="">Qualquer valor</option>${priceOptions(tab.dataset.purpose === 'aluguel' ? 'rent' : 'sale')}`; })); homeSearch.addEventListener('submit', (event) => { event.preventDefault(); const params = new URLSearchParams(new FormData(homeSearch)); window.location.hash = `/${homeSearch.dataset.purpose === 'aluguel' ? 'alugar' : 'comprar'}?${params.toString()}`; }); } }
 function initializeGoogleAddressAutocomplete(address) { if (!address || address.dataset.googleAutocomplete || !window.google?.maps?.places?.Autocomplete) return; new window.google.maps.places.Autocomplete(address, { types: ['address'], componentRestrictions: { country: 'br' } }); address.dataset.googleAutocomplete = 'true'; }
 function initializeAddressSuggestions(address) { if (!address || address.dataset.suggestionsReady || window.google?.maps?.places?.Autocomplete) return; const listId = 'address-suggestions'; let datalist = document.getElementById(listId); if (!datalist) { datalist = document.createElement('datalist'); datalist.id = listId; document.body.appendChild(datalist); } address.setAttribute('list', listId); address.dataset.suggestionsReady = 'true'; let timer; address.addEventListener('input', () => { clearTimeout(timer); const query = address.value.trim(); if (query.length < 3) { datalist.replaceChildren(); return; } timer = setTimeout(async () => { try { const response = await fetch(`https://nominatim.openstreetmap.org/search?format=jsonv2&countrycodes=br&limit=6&addressdetails=1&q=${encodeURIComponent(query)}`); if (!response.ok) return; const results = await response.json(); datalist.replaceChildren(...results.map((result) => { const option = document.createElement('option'); option.value = result.display_name; return option; })); } catch (error) { datalist.replaceChildren(); } }, 300); }); }
 function initializeCepLookup(address, city) { if (!address || !city || address.dataset.cepLookup) return; address.dataset.cepLookup = 'true'; address.addEventListener('input', async () => { const cep = address.value.replace(/\D/g, ''); if (cep.length !== 8) return; try { const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`); if (!response.ok) return; const result = await response.json(); if (result.erro) return; address.value = result.logradouro || ''; city.value = result.localidade || ''; address.dispatchEvent(new Event('change', { bubbles: true })); city.dispatchEvent(new Event('change', { bubbles: true })); } catch (error) { /* Keeps manual address entry available when the lookup is unavailable. */ } }); }
-function enhanceOwnerForm() { const phone = document.querySelector('#phone'); if (phone) phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); }); const address = document.querySelector('#address'); const city = document.querySelector('#city'); if (!address || !city) return; initializeGoogleAddressAutocomplete(address); initializeAddressSuggestions(address); initializeCepLookup(address, city); }
+function enhanceOwnerForm() { document.querySelectorAll('input[type="tel"]').forEach((phone) => phone.addEventListener('input', () => { phone.value = formatPhone(phone.value); })); const address = document.querySelector('#address'); const city = document.querySelector('#city'); if (!address || !city) return; initializeGoogleAddressAutocomplete(address); initializeAddressSuggestions(address); initializeCepLookup(address, city); }
 menuToggle.addEventListener('click', () => { const open = mobileNav.classList.toggle('is-open'); menuToggle.setAttribute('aria-expanded', String(open)); });
 window.addEventListener('hashchange', render); render();

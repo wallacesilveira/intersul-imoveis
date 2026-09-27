@@ -7,6 +7,9 @@
 export const config = {
   // Identifica a imobiliária no banco (preparação para múltiplas imobiliárias).
   agencySlug: 'intersul',
+  contact: {
+    whatsapp: '5511936233799',
+  },
   supabase: {
     url: 'https://kyqjydphxvbjyciglihh.supabase.co',
     publishableKey: 'sb_publishable_wFz57k6l7JDmWfBjDT8QPg_Yd9I6Vdh',

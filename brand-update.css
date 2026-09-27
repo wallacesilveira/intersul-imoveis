@@ -28,3 +28,15 @@ h1,h2,h3,.display{font-family:'Manrope','DM Sans',Arial,sans-serif;font-weight:7
 /* Menu principal: sobe ao passar o mouse, como os botões */
 .desktop-nav a{transition:transform .2s ease,color .2s ease,text-shadow .2s ease}
 .desktop-nav a:hover{transform:translateY(-2px)}
+/* Formulários de contato (leads) */
+.interest-form{display:grid;gap:14px;margin-top:22px}
+.interest-form textarea{min-height:96px}
+.interest-form .button{width:100%}
+.form-panel .consent{margin-top:4px}
+.consent{grid-column:1/-1;display:flex;align-items:flex-start;gap:10px;font-size:12px;line-height:1.5;color:var(--muted);cursor:pointer}
+.consent input{flex:0 0 16px;width:16px;height:16px;margin:2px 0 0;accent-color:var(--navy);cursor:pointer}
+.hp-field{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}
+.form-status.is-error{color:#a3322a}
+.interest-success{margin-top:22px}
+.interest-success .form-status{margin-top:0}
+.button-whatsapp{width:100%;margin-top:16px;background:#25d366;color:#fff}
