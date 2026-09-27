@@ -15,15 +15,17 @@ Não há build nem dependências.
 
 - `index.html`: shell semântico, header, footer e ponto de montagem.
 - `app.js`: roteamento por hash, páginas, formulários e interações do site.
-- `config.js`: fonte de dados (`mock` ou `supabase`) e identificação da imobiliária.
+- `config.js`: endereço e chave pública do Supabase, identificação da imobiliária.
 - `shared/`: código comum ao site e ao futuro painel.
   - `format.js`: escape de HTML, formatação de preço, área e telefone.
   - `property-model.js`: tipos, status e conversão dos dados do banco para o site.
+  - `supabase-rest.js`: chamadas às funções públicas do banco.
   - `repositories/property-repository.js`: único ponto de acesso do site aos imóveis.
 - Estilos: `styles.css`, `overrides.css`, `brand-update.css`, `mockup-home.css`.
+- `supabase/`: estrutura do banco, permissões e testes ([guia](supabase/README.md)).
 
 A arquitetura completa e as etapas estão em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).
 
 ## Dados
 
-Os imóveis exibidos hoje são **fictícios** (códigos `DEMO-xx`) e servem só para desenvolvimento. Eles ficam em `shared/repositories/adapters/mock-adapter.js` até o site passar a ler do banco.
+Os imóveis vêm do Supabase. Os que existem hoje são **fictícios** (códigos `DEMO-xx`, `source = 'demo'`), cadastrados pelo `supabase/seed.sql` só para desenvolvimento.

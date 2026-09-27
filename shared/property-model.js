@@ -47,7 +47,7 @@ export function priceRangeOptions(purpose) {
   return Object.entries(PRICE_RANGES).filter(([, range]) => range.purpose === purpose).map(([value, range]) => [value, range.label]);
 }
 
-/** Situação comercial. Só `available` e `reserved` aparecem no site. */
+/** Situação comercial. Só `available` e `reserved` aparecem no site (regra aplicada pelo banco). */
 export const PROPERTY_STATUS = {
   available: 'Disponível',
   reserved: 'Reservado',
@@ -55,13 +55,6 @@ export const PROPERTY_STATUS = {
   rented: 'Alugado',
   inactive: 'Inativo',
 };
-
-export const PUBLIC_STATUSES = ['available', 'reserved'];
-
-/** Regra única de visibilidade no site — espelha a que o banco aplicará. */
-export function isPubliclyVisible(row) {
-  return row.published === true && PUBLIC_STATUSES.includes(row.status) && !row.archived_at;
-}
 
 /** Converte uma linha do banco (snake_case) no objeto público usado pelo site. */
 export function toPublicProperty(row) {

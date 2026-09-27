@@ -34,16 +34,16 @@ Documento de referência para a evolução do novo site da Intersul em uma plata
 Intersul/
 ├── index.html, app.js            site público
 ├── styles.css, overrides.css, brand-update.css, mockup-home.css
-├── config.js                     dataSource, agencySlug, credenciais públicas do Supabase
+├── config.js                     agencySlug, URL e chave publicável do Supabase
 ├── shared/                       código comum a site e painel
 │   ├── format.js                 escapeHtml, moeda, área, telefone, normalização
 │   ├── property-model.js         tipos, status, conversão banco → objeto público
+│   ├── supabase-rest.js          chamadas às funções públicas (RPC)
 │   └── repositories/
 │       ├── property-repository.js
 │       ├── lead-repository.js            (Etapa 4)
 │       └── adapters/
-│           ├── mock-adapter.js           temporário, removido na Etapa 3
-│           └── supabase-adapter.js       (Etapa 3)
+│           └── supabase-adapter.js
 ├── admin/                        painel (Etapa 5+)
 ├── supabase/migrations/, seed.sql (Etapa 2)
 └── docs/ARQUITETURA.md
@@ -152,7 +152,7 @@ Visitantes anônimos não têm acesso a nenhuma tabela. Eles só executam:
 
 As funções devolvem só campos públicos: nunca endereço completo, notas internas ou proprietário. Elas são também o contrato estável para um futuro frontend (por exemplo, Next.js para SEO).
 
-`propertyRepository` (em `shared/repositories/`) é a única porta do site para os dados. O adaptador é escolhido em `config.js`.
+`propertyRepository` (em `shared/repositories/`) é a única porta do site para os dados; o adaptador do Supabase converte as respostas das funções no objeto usado pelas páginas.
 
 ## Leads
 
@@ -193,7 +193,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 |---|---|---|
 | 1 | Refatoração sem backend (módulos, repositório, modelo, filtros, escape de HTML) | concluída |
 | 2 | Supabase: schema, RLS, triggers de aprovação, funções públicas, storage, seed demo ([supabase/](../supabase/README.md)) | concluída |
-| 3 | Site lendo do Supabase; remoção do adaptador mock | |
+| 3 | Site lendo do Supabase; remoção do adaptador mock | concluída |
 | 4 | Leads dos formulários do site | |
 | 5 | Painel: login e contatos/proprietários | |
 | 6 | Painel: imóveis (com proprietários e aprovação) | |
