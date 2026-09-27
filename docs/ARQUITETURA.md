@@ -111,7 +111,7 @@ Transferir a responsabilidade é uma ação exclusiva do administrador, ou preci
 | `property_owners` | só vínculos de proprietários seus | só vínculos de proprietários seus |
 | `contacts` | os que cadastrou, os de proprietários seus e os de leads atribuídos a ele | os que cadastrou ou de proprietários seus |
 | `leads`, `lead_activities` | os atribuídos a ele | os atribuídos a ele |
-| `change_requests` | as suas | cria as suas, cancela as pendentes |
+| `change_requests` | as suas | cria e cancela as suas, sempre pelas funções `request_change` e `cancel_change_request` |
 
 A visibilidade de contatos é resolvida por uma função `app.can_access_contact(contact_id)` (security definer). Os dados de um proprietário de outro corretor nunca chegam ao corretor: nem pela tabela `owners`, nem pelos vínculos `property_owners`.
 
@@ -192,7 +192,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | # | Etapa | Estado |
 |---|---|---|
 | 1 | Refatoração sem backend (módulos, repositório, modelo, filtros, escape de HTML) | concluída |
-| 2 | Supabase: schema, RLS, triggers de aprovação, funções públicas, storage, seed demo | |
+| 2 | Supabase: schema, RLS, triggers de aprovação, funções públicas, storage, seed demo ([supabase/](../supabase/README.md)) | concluída |
 | 3 | Site lendo do Supabase; remoção do adaptador mock | |
 | 4 | Leads dos formulários do site | |
 | 5 | Painel: login e contatos/proprietários | |
