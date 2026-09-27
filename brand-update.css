@@ -25,3 +25,6 @@ h1,h2,h3,.display{font-family:'Manrope','DM Sans',Arial,sans-serif;font-weight:7
 .featured-home .property-card img{height:280px}
 @media(max-width:900px){.featured-home .property-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:560px){.featured-home .property-grid{grid-template-columns:1fr}}
+/* Menu principal: sobe ao passar o mouse, como os botões */
+.desktop-nav a{transition:transform .2s ease,color .2s ease,text-shadow .2s ease}
+.desktop-nav a:hover{transform:translateY(-2px)}

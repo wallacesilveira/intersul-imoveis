@@ -1,3 +1,8 @@
+/*!
+ * Intersul Imóveis — Plataforma
+ * Desenvolvido por Wallace Silveira · linkedin.com/in/wallacesilveira
+ * © 2026 Wallace Silveira. Todos os direitos reservados.
+ */
 /* Contemporary property platform direction */
 :root{--paper:#f8f9fb;--ink:#11162a;--muted:#697181;--line:#e1e4ea}
 .site-header{max-width:none;padding:18px max(28px,calc((100% - var(--max))/2));background:var(--white);border-bottom:1px solid var(--line)}
