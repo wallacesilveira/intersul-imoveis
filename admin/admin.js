@@ -8,6 +8,7 @@ import { ROLE_LABELS, alertBox, errorMessage, esc } from './lib/ui.js';
 import { changeRequestsRepository } from './repositories/change-requests.js';
 import { approvalsPage } from './pages/approvals.js';
 import { dashboardPage } from './pages/dashboard.js';
+import { memberPage, teamListPage } from './pages/team.js';
 import { contactDetailPage, contactFormPage, contactsListPage } from './pages/contacts.js';
 import { leadDetailPage, leadFormPage, leadsListPage } from './pages/leads.js';
 import { leadsRepository } from './repositories/leads.js';
@@ -21,6 +22,8 @@ const DEFAULT_ROUTE = '/painel';
 
 const routes = [
   [/^\/painel$/, dashboardPage],
+  [/^\/equipe$/, teamListPage],
+  [/^\/equipe\/([0-9a-f-]{36})$/, memberPage],
   [/^\/imoveis$/, propertiesListPage],
   [/^\/imoveis\/novo$/, propertyFormPage],
   [/^\/imoveis\/([0-9a-f-]{36})$/, propertyFormPage],
@@ -43,6 +46,7 @@ const menu = [
   { path: '/contatos', label: 'Contatos' },
   { path: '/proprietarios', label: 'Proprietários' },
   { path: '/aprovacoes', label: 'Aprovações', agentLabel: 'Minhas solicitações', badge: 'pending' },
+  { path: '/equipe', label: 'Equipe', adminOnly: true },
 ];
 
 let ctx = null;
@@ -63,6 +67,8 @@ function createContext(user, membership, team) {
       window.location.hash = target;
     },
     flash(message) { flashMessage = message; },
+    /** Recarrega a equipe (nomes usados em todo o painel) depois de alterações em Equipe. */
+    async reloadTeam() { this.team = await sessionRepository.team(this.agency.id); },
     /** Atualiza os contadores do menu: leads novos (todos) e solicitações pendentes (admin). */
     async refreshBadges() {
       const counters = { leads: () => leadsRepository.countNew(this.agency.id) };
@@ -88,7 +94,7 @@ function renderShell() {
   root.innerHTML = `<div class="admin-layout">
     <aside class="sidebar">
       <a class="sidebar-brand" href="#${DEFAULT_ROUTE}"><img src="../Logo_branco.png" alt=""><span><strong>INTERSUL</strong><small>Painel</small></span></a>
-      <nav class="sidebar-nav" aria-label="Menu do painel">${menu.map((item) => `<a href="#${item.path}" data-path="${item.path}">${ctx.isAdmin || !item.agentLabel ? item.label : item.agentLabel}${item.badge ? `<span class="nav-badge" data-badge="${item.badge}" hidden></span>` : ''}</a>`).join('')}<a href="../" target="_blank" rel="noreferrer">Ver site ↗</a></nav>
+      <nav class="sidebar-nav" aria-label="Menu do painel">${menu.filter((item) => ctx.isAdmin || !item.adminOnly).map((item) => `<a href="#${item.path}" data-path="${item.path}">${ctx.isAdmin || !item.agentLabel ? item.label : item.agentLabel}${item.badge ? `<span class="nav-badge" data-badge="${item.badge}" hidden></span>` : ''}</a>`).join('')}<a href="../" target="_blank" rel="noreferrer">Ver site ↗</a></nav>
       <div class="sidebar-user"><strong>${esc(ctx.member.full_name)}</strong><span>${ROLE_LABELS[ctx.member.role]} · ${esc(ctx.agency.name)}</span><button class="link-button" type="button" data-sign-out>Sair</button></div>
     </aside>
     <main class="admin-main" id="view" tabindex="-1"></main>

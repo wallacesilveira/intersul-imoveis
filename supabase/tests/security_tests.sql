@@ -168,6 +168,18 @@ begin
   r := r || (case when not app.can_edit_property_path(agency || '/' || prop_b || '/foto.webp') then '✔ ' else '✘ ' end || 'A não envia fotos para imóvel do B');
   r := r || (case when not app.can_edit_property_path('../' || prop_a || '/foto.webp') then '✔ ' else '✘ ' end || 'Caminho de foto inválido é recusado');
 
+  err := null;
+  begin
+    perform * from public.list_team(agency);
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err = 'forbidden' then '✔ ' else '✘ ' end || 'Corretor não vê a lista da equipe');
+
+  err := null;
+  begin
+    perform public.transfer_portfolio(agency, agent_b, agent_a);
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err = 'forbidden' then '✔ ' else '✘ ' end || 'Corretor não transfere carteira');
+
   reset role;
 
   -- -------------------------------------------------------------------------
@@ -219,6 +231,31 @@ begin
 
   select count(*) into n from public.lead_activities where type = 'created';
   r := r || (case when n >= 1 then '✔ ' else '✘ ' end || 'Criação de lead registrada no histórico');
+
+  select count(*) into n from public.list_team(agency) t where t.email is not null;
+  r := r || (case when n = 3 then '✔ ' else '✘ ' end || 'Admin lista a equipe com e-mail');
+
+  err := null;
+  begin
+    update public.agency_members set role = 'agent' where agency_id = agency and user_id = admin_id;
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err = 'last_admin' then '✔ ' else '✘ ' end || 'Imobiliária não fica sem administrador ativo');
+
+  err := null;
+  begin
+    perform public.add_member_by_email(agency, 'nao-existe@teste.local', 'Fulano', 'agent');
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err = 'user_not_found' then '✔ ' else '✘ ' end || 'Vincular e-mail sem login é recusado');
+
+  err := null;
+  begin
+    perform public.add_member_by_email(agency, 'carlos@teste.local', 'Carlos', 'agent');
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err = 'already_member' then '✔ ' else '✘ ' end || 'Membro não é vinculado duas vezes');
+
+  j := public.transfer_portfolio(agency, agent_a, agent_b);
+  select count(*) into n from public.owners where agency_id = agency and responsible_user_id = agent_a;
+  r := r || (case when n = 0 and (j ->> 'owners')::int >= 1 and (j ->> 'properties')::int >= 1 then '✔ ' else '✘ ' end || 'Transferência de carteira move proprietários e imóveis');
 
   reset role;
 
