@@ -7,6 +7,7 @@
 import { ROLE_LABELS, alertBox, errorMessage, esc } from './lib/ui.js';
 import { changeRequestsRepository } from './repositories/change-requests.js';
 import { approvalsPage } from './pages/approvals.js';
+import { dashboardPage } from './pages/dashboard.js';
 import { contactDetailPage, contactFormPage, contactsListPage } from './pages/contacts.js';
 import { leadDetailPage, leadFormPage, leadsListPage } from './pages/leads.js';
 import { leadsRepository } from './repositories/leads.js';
@@ -16,9 +17,10 @@ import { propertiesListPage, propertyFormPage } from './pages/properties.js';
 import { sessionRepository } from './repositories/session.js';
 
 const root = document.querySelector('#app');
-const DEFAULT_ROUTE = '/imoveis';
+const DEFAULT_ROUTE = '/painel';
 
 const routes = [
+  [/^\/painel$/, dashboardPage],
   [/^\/imoveis$/, propertiesListPage],
   [/^\/imoveis\/novo$/, propertyFormPage],
   [/^\/imoveis\/([0-9a-f-]{36})$/, propertyFormPage],
@@ -35,6 +37,7 @@ const routes = [
 ];
 
 const menu = [
+  { path: '/painel', label: 'Início' },
   { path: '/leads', label: 'Leads', badge: 'leads' },
   { path: '/imoveis', label: 'Imóveis' },
   { path: '/contatos', label: 'Contatos' },
