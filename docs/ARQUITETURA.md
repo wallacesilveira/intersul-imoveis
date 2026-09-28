@@ -44,7 +44,7 @@ Intersul/
 │       ├── lead-repository.js            (Etapa 4)
 │       └── adapters/
 │           └── supabase-adapter.js
-├── admin/                        painel (Etapa 5+)
+├── admin/                        painel: index.html, admin.js (rotas e sessão), pages/, repositories/, lib/
 ├── supabase/migrations/, seed.sql (Etapa 2)
 └── docs/ARQUITETURA.md
 ```
@@ -195,7 +195,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | 2 | Supabase: schema, RLS, triggers de aprovação, funções públicas, storage, seed demo ([supabase/](../supabase/README.md)) | concluída |
 | 3 | Site lendo do Supabase; remoção do adaptador mock | concluída |
 | 4 | Leads dos formulários do site | concluída |
-| 5 | Painel: login e contatos/proprietários | |
+| 5 | Painel: login e contatos/proprietários | concluída |
 | 6 | Painel: imóveis (com proprietários e aprovação) | |
 | 7 | Fotos | |
 | 8 | Leads no painel | |

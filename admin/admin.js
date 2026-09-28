@@ -1,0 +1,135 @@
+/*!
+ * Intersul Imóveis — Plataforma
+ * Desenvolvido por Wallace Silveira · linkedin.com/in/wallacesilveira
+ * © 2026 Wallace Silveira. Todos os direitos reservados.
+ */
+/* Painel: sessão, estrutura (menu) e rotas. As permissões são aplicadas pelo banco; o painel só adapta a interface. */
+import { ROLE_LABELS, alertBox, errorMessage, esc } from './lib/ui.js';
+import { contactDetailPage, contactFormPage, contactsListPage } from './pages/contacts.js';
+import { renderLogin, renderNewPassword, renderNoAccess } from './pages/login.js';
+import { ownerDetailPage, ownersListPage } from './pages/owners.js';
+import { sessionRepository } from './repositories/session.js';
+
+const root = document.querySelector('#app');
+const DEFAULT_ROUTE = '/contatos';
+
+const routes = [
+  [/^\/contatos$/, contactsListPage],
+  [/^\/contatos\/novo$/, contactFormPage],
+  [/^\/contatos\/([0-9a-f-]{36})\/editar$/, contactFormPage],
+  [/^\/contatos\/([0-9a-f-]{36})$/, contactDetailPage],
+  [/^\/proprietarios$/, ownersListPage],
+  [/^\/proprietarios\/([0-9a-f-]{36})$/, ownerDetailPage],
+];
+
+const menu = [
+  { path: '/contatos', label: 'Contatos' },
+  { path: '/proprietarios', label: 'Proprietários' },
+];
+
+let ctx = null;
+let flashMessage = '';
+let recovering = false;
+
+function createContext(user, membership, team) {
+  return {
+    user,
+    member: membership,
+    agency: membership.agencies,
+    team,
+    isAdmin: membership.role === 'admin',
+    navigate(path, { replace = false } = {}) {
+      const target = `#${path}`;
+      if (window.location.hash === target) { renderRoute(); return; }
+      if (replace) { history.replaceState(null, '', target); renderRoute(); return; }
+      window.location.hash = target;
+    },
+    flash(message) { flashMessage = message; },
+    takeFlash() { const message = flashMessage; flashMessage = ''; return alertBox(message, 'success'); },
+  };
+}
+
+function currentPath() {
+  const hash = window.location.hash.replace(/^#/, '');
+  // links de recuperação de senha chegam com tokens no fragmento; não são rotas
+  if (!hash.startsWith('/')) return DEFAULT_ROUTE;
+  return hash.split('?')[0] || DEFAULT_ROUTE;
+}
+
+function renderShell() {
+  root.innerHTML = `<div class="admin-layout">
+    <aside class="sidebar">
+      <a class="sidebar-brand" href="#${DEFAULT_ROUTE}"><img src="../Logo_branco.png" alt=""><span><strong>INTERSUL</strong><small>Painel</small></span></a>
+      <nav class="sidebar-nav" aria-label="Menu do painel">${menu.map((item) => `<a href="#${item.path}" data-path="${item.path}">${item.label}</a>`).join('')}<a href="../" target="_blank" rel="noreferrer">Ver site ↗</a></nav>
+      <div class="sidebar-user"><strong>${esc(ctx.member.full_name)}</strong><span>${ROLE_LABELS[ctx.member.role]} · ${esc(ctx.agency.name)}</span><button class="link-button" type="button" data-sign-out>Sair</button></div>
+    </aside>
+    <main class="admin-main" id="view" tabindex="-1"></main>
+  </div>`;
+  root.querySelector('[data-sign-out]').addEventListener('click', signOut);
+}
+
+async function renderRoute() {
+  if (!ctx) return;
+  if (!root.querySelector('#view')) renderShell();
+  const view = root.querySelector('#view');
+  const path = currentPath();
+  const match = routes.map(([pattern, page]) => [path.match(pattern), page]).find(([result]) => result);
+  if (!match) { ctx.navigate(DEFAULT_ROUTE, { replace: true }); return; }
+  root.querySelectorAll('.sidebar-nav [data-path]').forEach((link) => link.classList.toggle('active', path.startsWith(link.dataset.path)));
+  view.innerHTML = '<div class="loading">Carregando…</div>';
+  try {
+    const [result, page] = match;
+    await page(view, ctx, ...result.slice(1));
+  } catch (error) {
+    view.innerHTML = alertBox(errorMessage(error));
+  }
+  flashMessage = ''; // um aviso vale só para a tela seguinte, mesmo que ela não o exiba
+  window.scrollTo(0, 0);
+}
+
+async function enter(user) {
+  const memberships = await sessionRepository.memberships(user.id);
+  if (!memberships.length) { renderNoAccess(root, { onSignOut: signOut }); return; }
+  const membership = memberships[0];
+  const team = await sessionRepository.team(membership.agency_id);
+  ctx = createContext(user, membership, team);
+  renderShell();
+  await renderRoute();
+}
+
+async function signOut() {
+  await sessionRepository.signOut();
+  ctx = null;
+  history.replaceState(null, '', window.location.pathname);
+  renderLogin(root, { onSignedIn: enter });
+}
+
+// Linhas de tabela clicáveis
+root.addEventListener('click', (event) => {
+  const row = event.target.closest('tr[data-href]');
+  if (row && !event.target.closest('a, button')) window.location.hash = row.dataset.href;
+});
+
+window.addEventListener('hashchange', () => { if (!recovering) renderRoute(); });
+
+sessionRepository.onPasswordRecovery(() => {
+  recovering = true;
+  renderNewPassword(root, {
+    onDone: async () => {
+      recovering = false;
+      history.replaceState(null, '', window.location.pathname);
+      const user = await sessionRepository.currentUser();
+      if (user) await enter(user); else renderLogin(root, { onSignedIn: enter });
+    },
+  });
+});
+
+(async () => {
+  try {
+    const user = await sessionRepository.currentUser();
+    if (recovering) return;
+    if (user) await enter(user); else renderLogin(root, { onSignedIn: enter });
+  } catch (error) {
+    root.innerHTML = `<main class="auth-screen"><section class="auth-card">${alertBox(errorMessage(error))}</section></main>`;
+  }
+})();

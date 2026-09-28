@@ -97,6 +97,13 @@ begin
   select count(*) into n from public.properties where agency_id = agency;
   r := r || (case when n = 3 then '✔ ' else '✘ ' end || 'Estoque de imóveis visível para toda a equipe');
 
+  err := null;
+  begin
+    insert into public.contacts (agency_id, name, phone) values (agency, 'Cliente do Wallace', '11977777777') returning id into req;
+  exception when others then err := sqlerrm; end;
+  r := r || (case when err is null and req is not null then '✔ ' else '✘ ' end || 'A cadastra contato e o recebe de volta');
+  req := null;
+
   update public.properties set description = 'Nova descrição' where id = prop_a;
   get diagnostics n = row_count;
   r := r || (case when n = 1 then '✔ ' else '✘ ' end || 'A edita campos livres do próprio imóvel');
