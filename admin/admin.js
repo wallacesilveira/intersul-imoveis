@@ -8,6 +8,8 @@ import { ROLE_LABELS, alertBox, errorMessage, esc } from './lib/ui.js';
 import { changeRequestsRepository } from './repositories/change-requests.js';
 import { approvalsPage } from './pages/approvals.js';
 import { contactDetailPage, contactFormPage, contactsListPage } from './pages/contacts.js';
+import { leadDetailPage, leadFormPage, leadsListPage } from './pages/leads.js';
+import { leadsRepository } from './repositories/leads.js';
 import { renderLogin, renderNewPassword, renderNoAccess } from './pages/login.js';
 import { ownerDetailPage, ownersListPage } from './pages/owners.js';
 import { propertiesListPage, propertyFormPage } from './pages/properties.js';
@@ -21,6 +23,9 @@ const routes = [
   [/^\/imoveis\/novo$/, propertyFormPage],
   [/^\/imoveis\/([0-9a-f-]{36})$/, propertyFormPage],
   [/^\/aprovacoes$/, approvalsPage],
+  [/^\/leads$/, leadsListPage],
+  [/^\/leads\/novo$/, leadFormPage],
+  [/^\/leads\/([0-9a-f-]{36})$/, leadDetailPage],
   [/^\/contatos$/, contactsListPage],
   [/^\/contatos\/novo$/, contactFormPage],
   [/^\/contatos\/([0-9a-f-]{36})\/editar$/, contactFormPage],
@@ -30,6 +35,7 @@ const routes = [
 ];
 
 const menu = [
+  { path: '/leads', label: 'Leads', badge: 'leads' },
   { path: '/imoveis', label: 'Imóveis' },
   { path: '/contatos', label: 'Contatos' },
   { path: '/proprietarios', label: 'Proprietários' },
@@ -54,11 +60,15 @@ function createContext(user, membership, team) {
       window.location.hash = target;
     },
     flash(message) { flashMessage = message; },
-    /** Atualiza o contador de solicitações pendentes no menu (admin). */
+    /** Atualiza os contadores do menu: leads novos (todos) e solicitações pendentes (admin). */
     async refreshBadges() {
-      const badge = root.querySelector('[data-badge="pending"]');
-      if (!badge || !this.isAdmin) return;
-      try { const count = await changeRequestsRepository.countPending(this.agency.id); badge.textContent = count || ''; badge.hidden = !count; } catch { badge.hidden = true; }
+      const counters = { leads: () => leadsRepository.countNew(this.agency.id) };
+      if (this.isAdmin) counters.pending = () => changeRequestsRepository.countPending(this.agency.id);
+      await Promise.all(Object.entries(counters).map(async ([name, count]) => {
+        const badge = root.querySelector(`[data-badge="${name}"]`);
+        if (!badge) return;
+        try { const value = await count(); badge.textContent = value || ''; badge.hidden = !value; } catch { badge.hidden = true; }
+      }));
     },
     takeFlash() { const message = flashMessage; flashMessage = ''; return alertBox(message, 'success'); },
   };

@@ -198,6 +198,6 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | 5 | Painel: login e contatos/proprietários | concluída |
 | 6 | Painel: imóveis (com proprietários e aprovação) | concluída |
 | 7 | Fotos (envio otimizado, ordem, capa) e galeria no site | concluída |
-| 8 | Leads no painel | |
+| 8 | Leads no painel (distribuição, situação, anotações, histórico, lead manual) | concluída |
 | 9 | Dashboard de pendências | |
 | 10 | Usuários e aviso de lead por e-mail | |

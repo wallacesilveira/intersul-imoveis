@@ -112,7 +112,7 @@ export async function contactDetailPage(view, ctx, id) {
     ? `<p><span class="badge badge-gold">Proprietário</span> <span class="badge">${OWNER_STATUS_LABELS[owner.status]}</span></p><p class="muted">Responsável: ${esc(memberName(ctx.team, owner.responsible_user_id))}</p><a class="btn btn-secondary" href="#/proprietarios/${owner.id}">Ver proprietário</a>`
     : `<p class="muted">Este contato não está registrado como proprietário${ctx.isAdmin ? '' : ' na sua carteira'}.</p>${ownerForm(ctx)}`;
 
-  const leadRows = leads.map((lead) => `<tr><td>${formatDate(lead.created_at)}</td><td>${LEAD_KIND_LABELS[lead.kind]}</td><td>${lead.properties ? `${esc(lead.properties.code)} · ${esc(lead.properties.title)}` : '—'}</td><td><span class="badge">${LEAD_STATUS_LABELS[lead.status]}</span></td><td>${esc(memberName(ctx.team, lead.assigned_to))}</td></tr>`).join('');
+  const leadRows = leads.map((lead) => `<tr data-href="#/leads/${lead.id}"><td><a href="#/leads/${lead.id}">${formatDate(lead.created_at)}</a></td><td>${LEAD_KIND_LABELS[lead.kind]}</td><td>${lead.properties ? `${esc(lead.properties.code)} · ${esc(lead.properties.title)}` : '—'}</td><td><span class="badge">${LEAD_STATUS_LABELS[lead.status]}</span></td><td>${esc(memberName(ctx.team, lead.assigned_to))}</td></tr>`).join('');
 
   view.innerHTML = `<header class="page-header"><div><a class="back-link" href="#/contatos">← Contatos</a><h1>${esc(contact.name)}</h1></div><div class="header-actions"><a class="btn btn-secondary" href="#/contatos/${id}/editar">Editar</a>${ctx.isAdmin ? '<button class="btn btn-danger" type="button" data-delete>Excluir</button>' : ''}</div></header>
     ${ctx.takeFlash()}<div data-feedback></div>
@@ -120,7 +120,7 @@ export async function contactDetailPage(view, ctx, id) {
       <section class="card"><h2>Dados</h2><dl class="info-list">${info}</dl>${contact.notes ? `<h3>Observações</h3><p class="pre-line">${esc(contact.notes)}</p>` : ''}</section>
       <section class="card"><h2>Proprietário</h2><div class="stack">${ownerCard}</div></section>
     </div>
-    <section class="card"><h2>Interesses</h2>${leads.length ? `<div class="table-scroll"><table class="data-table"><thead><tr><th>Data</th><th>Tipo</th><th>Imóvel</th><th>Situação</th><th>Responsável</th></tr></thead><tbody>${leadRows}</tbody></table></div>` : '<p class="muted">Nenhum interesse registrado.</p>'}</section>`;
+    <section class="card"><div class="section-head"><h2>Interesses</h2><a class="btn btn-secondary" href="#/leads/novo?contato=${id}">Registrar interesse</a></div>${leads.length ? `<div class="table-scroll"><table class="data-table"><thead><tr><th>Data</th><th>Tipo</th><th>Imóvel</th><th>Situação</th><th>Responsável</th></tr></thead><tbody>${leadRows}</tbody></table></div>` : '<p class="muted">Nenhum interesse registrado.</p>'}</section>`;
 
   const feedback = view.querySelector('[data-feedback]');
   const deleteButton = view.querySelector('[data-delete]');

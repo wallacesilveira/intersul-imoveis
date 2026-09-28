@@ -54,7 +54,7 @@ p { margin: 0; }
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 .field-full { grid-column: 1 / -1; }
 .form-actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
-.stack { display: grid; gap: 16px; }
+.stack { display: grid; gap: 16px; align-content: start; }
 .stack .btn:not(.btn-block) { justify-self: start; }
 [data-feedback]:empty { display: none; }
 
@@ -180,6 +180,20 @@ fieldset:disabled .field input, fieldset:disabled .field select, fieldset:disabl
 .upload-progress { margin-top: 16px; display: grid; gap: 6px; }
 .progress-bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
 .progress-bar span { display: block; height: 100%; background: var(--navy); transition: width .3s ease; }
+
+/* Leads */
+.row-new td:first-child a { color: var(--navy); }
+.row-new td:first-child { box-shadow: inset 3px 0 0 var(--champagne); }
+.btn-whatsapp { background: #25d366; color: #fff; }
+.message-box { padding: 14px 16px; background: var(--paper); border-radius: 8px; border: 1px solid var(--line); }
+.note-form { display: grid; gap: 12px; margin-bottom: 24px; }
+.note-form .btn { justify-self: start; }
+.timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 2px solid var(--line); display: grid; gap: 18px; }
+.timeline-item { position: relative; display: grid; gap: 2px; }
+.timeline-item::before { content: ''; position: absolute; left: -24px; top: 6px; width: 10px; height: 10px; border-radius: 50%; background: var(--line); border: 2px solid var(--white); }
+.timeline-note::before { background: var(--navy); }
+.timeline-created::before { background: var(--champagne); }
+.timeline-item span { font-size: 12px; }
 
 @media (max-width: 860px) {
   .admin-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
