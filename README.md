@@ -22,7 +22,7 @@ Não há build nem dependências.
   - `supabase-rest.js`: chamadas às funções públicas do banco.
   - `repositories/property-repository.js`: único ponto de acesso do site aos imóveis.
 - Estilos: `styles.css`, `overrides.css`, `brand-update.css`, `mockup-home.css`.
-- `admin/`: painel administrativo (login, contatos, proprietários), acessado em `/admin/`.
+- `admin/`: painel administrativo (login, imóveis, contatos, proprietários, aprovações), acessado em `/admin/`.
 - `supabase/`: estrutura do banco, permissões e testes ([guia](supabase/README.md)).
 
 A arquitetura completa e as etapas estão em [docs/ARQUITETURA.md](docs/ARQUITETURA.md).

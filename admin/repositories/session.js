@@ -42,7 +42,7 @@ export const sessionRepository = {
   async memberships(userId) {
     return unwrap(await supabase
       .from('agency_members')
-      .select('agency_id, user_id, role, full_name, agencies (id, slug, name)')
+      .select('agency_id, user_id, role, full_name, agencies (id, slug, name, settings)')
       .eq('user_id', userId)
       .eq('active', true));
   },

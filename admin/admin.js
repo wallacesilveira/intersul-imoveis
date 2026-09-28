@@ -5,15 +5,22 @@
  */
 /* Painel: sessão, estrutura (menu) e rotas. As permissões são aplicadas pelo banco; o painel só adapta a interface. */
 import { ROLE_LABELS, alertBox, errorMessage, esc } from './lib/ui.js';
+import { changeRequestsRepository } from './repositories/change-requests.js';
+import { approvalsPage } from './pages/approvals.js';
 import { contactDetailPage, contactFormPage, contactsListPage } from './pages/contacts.js';
 import { renderLogin, renderNewPassword, renderNoAccess } from './pages/login.js';
 import { ownerDetailPage, ownersListPage } from './pages/owners.js';
+import { propertiesListPage, propertyFormPage } from './pages/properties.js';
 import { sessionRepository } from './repositories/session.js';
 
 const root = document.querySelector('#app');
-const DEFAULT_ROUTE = '/contatos';
+const DEFAULT_ROUTE = '/imoveis';
 
 const routes = [
+  [/^\/imoveis$/, propertiesListPage],
+  [/^\/imoveis\/novo$/, propertyFormPage],
+  [/^\/imoveis\/([0-9a-f-]{36})$/, propertyFormPage],
+  [/^\/aprovacoes$/, approvalsPage],
   [/^\/contatos$/, contactsListPage],
   [/^\/contatos\/novo$/, contactFormPage],
   [/^\/contatos\/([0-9a-f-]{36})\/editar$/, contactFormPage],
@@ -23,8 +30,10 @@ const routes = [
 ];
 
 const menu = [
+  { path: '/imoveis', label: 'Imóveis' },
   { path: '/contatos', label: 'Contatos' },
   { path: '/proprietarios', label: 'Proprietários' },
+  { path: '/aprovacoes', label: 'Aprovações', agentLabel: 'Minhas solicitações', badge: 'pending' },
 ];
 
 let ctx = null;
@@ -45,6 +54,12 @@ function createContext(user, membership, team) {
       window.location.hash = target;
     },
     flash(message) { flashMessage = message; },
+    /** Atualiza o contador de solicitações pendentes no menu (admin). */
+    async refreshBadges() {
+      const badge = root.querySelector('[data-badge="pending"]');
+      if (!badge || !this.isAdmin) return;
+      try { const count = await changeRequestsRepository.countPending(this.agency.id); badge.textContent = count || ''; badge.hidden = !count; } catch { badge.hidden = true; }
+    },
     takeFlash() { const message = flashMessage; flashMessage = ''; return alertBox(message, 'success'); },
   };
 }
@@ -60,7 +75,7 @@ function renderShell() {
   root.innerHTML = `<div class="admin-layout">
     <aside class="sidebar">
       <a class="sidebar-brand" href="#${DEFAULT_ROUTE}"><img src="../Logo_branco.png" alt=""><span><strong>INTERSUL</strong><small>Painel</small></span></a>
-      <nav class="sidebar-nav" aria-label="Menu do painel">${menu.map((item) => `<a href="#${item.path}" data-path="${item.path}">${item.label}</a>`).join('')}<a href="../" target="_blank" rel="noreferrer">Ver site ↗</a></nav>
+      <nav class="sidebar-nav" aria-label="Menu do painel">${menu.map((item) => `<a href="#${item.path}" data-path="${item.path}">${ctx.isAdmin || !item.agentLabel ? item.label : item.agentLabel}${item.badge ? `<span class="nav-badge" data-badge="${item.badge}" hidden></span>` : ''}</a>`).join('')}<a href="../" target="_blank" rel="noreferrer">Ver site ↗</a></nav>
       <div class="sidebar-user"><strong>${esc(ctx.member.full_name)}</strong><span>${ROLE_LABELS[ctx.member.role]} · ${esc(ctx.agency.name)}</span><button class="link-button" type="button" data-sign-out>Sair</button></div>
     </aside>
     <main class="admin-main" id="view" tabindex="-1"></main>
@@ -94,6 +109,7 @@ async function enter(user) {
   const team = await sessionRepository.team(membership.agency_id);
   ctx = createContext(user, membership, team);
   renderShell();
+  ctx.refreshBadges();
   await renderRoute();
 }
 

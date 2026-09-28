@@ -196,7 +196,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | 3 | Site lendo do Supabase; remoção do adaptador mock | concluída |
 | 4 | Leads dos formulários do site | concluída |
 | 5 | Painel: login e contatos/proprietários | concluída |
-| 6 | Painel: imóveis (com proprietários e aprovação) | |
+| 6 | Painel: imóveis (com proprietários e aprovação) | concluída |
 | 7 | Fotos | |
 | 8 | Leads no painel | |
 | 9 | Dashboard de pendências | |

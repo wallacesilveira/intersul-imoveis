@@ -77,3 +77,21 @@ export function isValidDocument(value) {
   }
   return false;
 }
+
+/** Máscara de valor em reais inteiros enquanto se digita: "2800000" → "2.800.000". */
+export function formatMoneyInput(value) {
+  const digits = onlyDigits(value).replace(/^0+(?=\d)/, '').slice(0, 12);
+  return digits ? integerFormatter.format(Number(digits)) : '';
+}
+
+/** "2.800.000" → 2800000; vazio → null. */
+export function parseMoney(value) {
+  const digits = onlyDigits(value);
+  return digits ? Number(digits) : null;
+}
+
+/** Máscara de CEP: 04772003 → 04772-003 */
+export function formatCep(value) {
+  const digits = onlyDigits(value).slice(0, 8);
+  return digits.length > 5 ? `${digits.slice(0, 5)}-${digits.slice(5)}` : digits;
+}

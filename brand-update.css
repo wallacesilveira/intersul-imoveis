@@ -40,3 +40,7 @@ h1,h2,h3,.display{font-family:'Manrope','DM Sans',Arial,sans-serif;font-weight:7
 .interest-success{margin-top:22px}
 .interest-success .form-status{margin-top:0}
 .button-whatsapp{width:100%;margin-top:16px;background:#25d366;color:#fff}
+/* Imóvel com venda e locação: um valor ao lado do outro, cada um com rótulo */
+.price-pair{display:flex;flex-wrap:wrap;gap:12px 48px}
+.price-caption{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.price-pair h2{font-size:clamp(30px,3.4vw,46px);margin:4px 0 0}

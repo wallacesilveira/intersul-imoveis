@@ -4,8 +4,8 @@
  * © 2026 Wallace Silveira. Todos os direitos reservados.
  */
 import { config } from './config.js';
-import { escapeHtml as esc, formatPhone, onlyDigits } from './shared/format.js';
-import { areaLabel, priceLabel, priceRangeOptions } from './shared/property-model.js';
+import { escapeHtml as esc, formatCurrency, formatPhone, onlyDigits } from './shared/format.js';
+import { SERVICE_AREAS, areaLabel, priceLabel, priceRangeOptions } from './shared/property-model.js';
 import { LeadError, leadRepository } from './shared/repositories/lead-repository.js';
 import { propertyRepository } from './shared/repositories/property-repository.js';
 
@@ -13,8 +13,7 @@ const main = document.querySelector('#main-content');
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileNav = document.querySelector('.mobile-nav');
 
-const regionPrimary = ['Interlagos', 'Bolsão de Interlagos', 'Marajoara', 'Socorro', 'Veleiros', 'Jardim Suzana', 'Jardim Sabará', 'Miguel Yunes', 'Santo Amaro'];
-const regionSecondary = ['Campo Grande', 'Jurubatuba', 'Cidade Dutra', 'Jardim Prudência', 'Vila Andrade', 'Chácara Flora', 'Alto da Boa Vista', 'Granja Julieta', 'Chácara Santo Amaro', 'Jardim dos Lagos', 'Jardim Ipanema', 'Vila São Paulo', 'Vila Castelo', 'Jardim Umuarama', 'Jardim Taquaral'];
+const regionPrimary = SERVICE_AREAS.primary;
 
 const typeOptions = ['Casa', 'Apartamento', 'Terreno', 'Sala', 'Loja'];
 // Rotas de busca → finalidade (null = venda e locação).
@@ -24,13 +23,16 @@ const whatsappUrl = (text) => `https://wa.me/${config.contact.whatsapp}?text=${e
 const consentField = (id) => `<label class="consent" for="${id}"><input type="checkbox" id="${id}" name="consent" required><span>Autorizo a Intersul Imóveis a usar estes dados para entrar em contato sobre esta solicitação.</span></label>`;
 // Campo-armadilha: invisível para pessoas; robôs costumam preenchê-lo e o envio é descartado.
 const honeypotField = '<div class="hp-field" aria-hidden="true"><label>Não preencha este campo<input name="website" tabindex="-1" autocomplete="off"></label></div>';
+// Imagem neutra para imóveis ainda sem foto
+const PHOTO_PLACEHOLDER = `data:image/svg+xml;charset=utf-8,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800"><rect width="1200" height="800" fill="#e9ecf1"/><path d="M540 360l60-48 60 48v80h-40v-44h-40v44h-40z" fill="#c3c9d4"/><text x="600" y="500" font-family="Arial, sans-serif" font-size="30" fill="#8a93a3" text-anchor="middle">Fotos em breve</text></svg>')}`;
+const coverOf = (property) => property.coverUrl || PHOTO_PLACEHOLDER;
 const propertyUrl = (property) => `#/imovel/${encodeURIComponent(property.code)}`;
 /** Faixas de preço da finalidade; sem finalidade, venda e locação em grupos separados. */
 const priceOptions = (purpose, selected = '') => purpose ? selectOptions(priceRangeOptions(purpose), selected) : `<optgroup label="Venda">${selectOptions(priceRangeOptions('sale'), selected)}</optgroup><optgroup label="Locação">${selectOptions(priceRangeOptions('rent'), selected)}</optgroup>`;
 const selectOptions = (options, selected = '') => options.map((option) => { const [value, label] = Array.isArray(option) ? option : [option, option]; return `<option${Array.isArray(option) ? ` value="${esc(value)}"` : ''}${value === selected ? ' selected' : ''}>${esc(label)}</option>`; }).join('');
 
 function propertyCard(property, context = 'featured') {
-  return `<article class="property-card"><a href="${propertyUrl(property)}"><img src="${esc(property.coverUrl)}" alt="${esc(property.title)}" loading="lazy"><div class="property-info"><div class="property-meta">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</div><h3>${esc(property.title)}</h3><div class="property-meta">${property.bedrooms ? `${esc(property.bedrooms)} dormitórios · ` : ''}${property.parking ? `${esc(property.parking)} vagas · ` : ''}${esc(areaLabel(property))}</div><p class="property-price">${esc(priceLabel(property, context))}</p><span class="text-link">Ver imóvel</span></div></a></article>`;
+  return `<article class="property-card"><a href="${propertyUrl(property)}"><img src="${esc(coverOf(property))}" alt="${esc(property.title)}" loading="lazy"><div class="property-info"><div class="property-meta">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</div><h3>${esc(property.title)}</h3><div class="property-meta">${property.bedrooms ? `${esc(property.bedrooms)} dormitórios · ` : ''}${property.parking ? `${esc(property.parking)} vagas · ` : ''}${esc(areaLabel(property))}</div><p class="property-price">${esc(priceLabel(property, context))}</p><span class="text-link">Ver imóvel</span></div></a></article>`;
 }
 
 function resultsMarkup(result, context) {
@@ -75,10 +77,14 @@ function administrationPage() { return `<section class="page-hero"><p class="eye
 
 function detailPage(property) {
   if (!property) return `<section class="page-hero"><p class="eyebrow">Imóvel</p><h1>Imóvel não encontrado.</h1><p>Este imóvel pode ter sido vendido, alugado ou retirado do site.</p><div class="hero-actions"><a class="button button-dark" href="#/comprar">Ver imóveis à venda</a><a class="button button-outline" href="#/alugar">Ver imóveis para alugar</a></div></section>`;
-  const offers = [property.forSale && 'À venda', property.forRent && 'Para locação'].filter(Boolean).join(' · ');
-  const rentAlsoLine = property.forSale && property.forRent ? `<p>Locação: ${esc(priceLabel(property, 'rent'))}</p>` : '';
+  const both = property.forSale && property.forRent;
+  const offers = both ? 'Disponível para venda e locação' : property.forSale ? 'À venda' : 'Para locação';
+  // Com as duas finalidades, cada valor aparece com o seu rótulo para não haver dúvida sobre o que é venda e o que é aluguel.
+  const priceBlock = both
+    ? `<div class="price-pair"><div><span class="price-caption">Venda</span><h2>${esc(property.salePrice === null ? 'Sob consulta' : formatCurrency(property.salePrice))}</h2></div><div><span class="price-caption">Locação</span><h2>${esc(property.rentPrice === null ? 'Sob consulta' : `${formatCurrency(property.rentPrice)} / mês`)}</h2></div></div>`
+    : `<h2>${esc(priceLabel(property))}</h2>`;
   const description = property.description.split(/\n{2,}/).filter((paragraph) => paragraph.trim()).map((paragraph, index) => `<p${index === 0 ? ' style="margin-top:30px"' : ''}>${esc(paragraph.trim()).replace(/\n/g, '<br>')}</p>`).join('');
-  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid"><img class="detail-image" src="${esc(property.coverUrl)}" alt="${esc(property.title)}"><div class="detail-content"><div><p class="eyebrow">${offers}</p><h2>${esc(priceLabel(property))}</h2>${rentAlsoLine}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p>${interestForm(property)}</aside></div></section>`;
+  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid"><img class="detail-image" src="${esc(coverOf(property))}" alt="${esc(property.title)}"><div class="detail-content"><div><p class="eyebrow">${offers}</p>${priceBlock}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p>${interestForm(property)}</aside></div></section>`;
 }
 
 function interestForm(property) {

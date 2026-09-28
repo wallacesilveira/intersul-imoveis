@@ -114,8 +114,8 @@ p { margin: 0; }
 .info-list dd { margin: 0; overflow-wrap: anywhere; }
 
 .toolbar { display: flex; align-items: center; gap: 10px; margin-bottom: 18px; flex-wrap: wrap; }
-.toolbar input { flex: 1 1 280px; max-width: 460px; background: var(--white); }
-.toolbar select { width: auto; min-width: 200px; background: var(--white); }
+.toolbar input { flex: 1 1 220px; max-width: 460px; background: var(--white); }
+.toolbar select { width: auto; min-width: 160px; background: var(--white); }
 
 /* Tabelas */
 .table-card { padding: 0; overflow-x: auto; }
@@ -132,6 +132,36 @@ p { margin: 0; }
 .table-card .data-table th, .table-card .data-table td { padding-left: 16px; }
 .table-count { margin-top: -8px; color: var(--muted); font-size: 13px; }
 
+/* Imóveis e aprovações */
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; }
+fieldset:disabled .field input, fieldset:disabled .field select, fieldset:disabled .field textarea { color: var(--muted); }
+.property-form .card h3 { margin-top: 24px; margin-bottom: 14px; }
+.form-grid-3 { grid-template-columns: repeat(3, 1fr); }
+.form-note { margin-top: 14px; font-size: 13px; }
+.check-inline { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 700; cursor: pointer; }
+.check-inline input { width: 16px; height: 16px; margin: 0; accent-color: var(--navy); }
+.toolbar .check-inline { font-weight: 500; color: var(--muted); }
+.approval-tag { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px; background: #f3eee4; color: #7a6641; font-size: 10px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; vertical-align: middle; }
+.sticky-actions { position: sticky; bottom: 0; z-index: 5; margin: 0 -40px; padding: 14px 40px; background: rgba(248, 249, 251, .94); border-top: 1px solid var(--line); backdrop-filter: blur(6px); }
+.cell-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+.card-pending { border-color: #e6d9bd; background: #fdfbf6; }
+.pending-item { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; padding: 14px 0; border-top: 1px solid #efe6d2; flex-wrap: wrap; }
+.pending-item:first-of-type { border-top: 0; padding-top: 0; }
+.pending-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.change-list { margin: 8px 0 0; padding-left: 18px; font-size: 14px; display: grid; gap: 4px; }
+.inline-form { display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; margin-top: 18px; }
+.inline-form .field { flex: 1 1 240px; }
+.inline-form .field-small { flex: 0 1 160px; }
+.nav-badge[hidden] { display: none; }
+.nav-badge { display: inline-grid; place-items: center; min-width: 20px; height: 20px; margin-left: 8px; padding: 0 6px; border-radius: 999px; background: var(--champagne); color: var(--navy); font-size: 11px; font-weight: 700; }
+.tabs { display: flex; gap: 4px; margin-bottom: 18px; border-bottom: 1px solid var(--line); flex-wrap: wrap; }
+.tab { padding: 10px 14px; color: var(--muted); text-decoration: none; font-size: 14px; font-weight: 600; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+.tab.active { color: var(--navy); border-color: var(--navy); }
+.request-card { display: grid; gap: 12px; }
+.request-card h2 { margin: 0; font-size: 16px; }
+.request-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.request-card .field { max-width: 480px; }
+
 @media (max-width: 860px) {
   .admin-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 14px 16px; }
@@ -141,6 +171,7 @@ p { margin: 0; }
   .sidebar-user { margin: 0 0 0 auto; padding: 0; border: 0; text-align: right; }
   .sidebar-user .link-button { justify-self: end; margin-top: 2px; }
   .admin-main { padding: 24px 16px 48px; }
-  .form-grid { grid-template-columns: 1fr; }
+  .form-grid, .form-grid-3 { grid-template-columns: 1fr; }
+  .sticky-actions { margin: 0 -16px; padding: 12px 16px; }
   .info-list div { grid-template-columns: 1fr; gap: 2px; }
 }

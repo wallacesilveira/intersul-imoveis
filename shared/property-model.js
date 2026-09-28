@@ -47,6 +47,18 @@ export function priceRangeOptions(purpose) {
   return Object.entries(PRICE_RANGES).filter(([, range]) => range.purpose === purpose).map(([value, range]) => [value, range.label]);
 }
 
+/** Bairros de atuação: os principais aparecem na home; todos são sugeridos no cadastro de imóveis. */
+export const SERVICE_AREAS = {
+  primary: ['Interlagos', 'Bolsão de Interlagos', 'Marajoara', 'Socorro', 'Veleiros', 'Jardim Suzana', 'Jardim Sabará', 'Miguel Yunes', 'Santo Amaro'],
+  secondary: ['Campo Grande', 'Jurubatuba', 'Cidade Dutra', 'Jardim Prudência', 'Vila Andrade', 'Chácara Flora', 'Alto da Boa Vista', 'Granja Julieta', 'Chácara Santo Amaro', 'Jardim dos Lagos', 'Jardim Ipanema', 'Vila São Paulo', 'Vila Castelo', 'Jardim Umuarama', 'Jardim Taquaral'],
+};
+
+/**
+ * Campos que o corretor só altera com aprovação do administrador. Espelha o padrão do banco
+ * (app.protected_property_fields); cada imobiliária pode sobrescrever em settings.approval_rules.
+ */
+export const DEFAULT_PROTECTED_PROPERTY_FIELDS = ['published', 'featured', 'for_sale', 'sale_price', 'for_rent', 'rent_price', 'status', 'responsible_user_id', 'code', 'archived_at'];
+
 /** Situação comercial. Só `available` e `reserved` aparecem no site (regra aplicada pelo banco). */
 export const PROPERTY_STATUS = {
   available: 'Disponível',
