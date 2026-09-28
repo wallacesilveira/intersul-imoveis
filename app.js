@@ -4,6 +4,7 @@
  * © 2026 Wallace Silveira. Todos os direitos reservados.
  */
 import { config } from './config.js';
+import { bindGallery, galleryMarkup } from './gallery.js';
 import { escapeHtml as esc, formatCurrency, formatPhone, onlyDigits } from './shared/format.js';
 import { SERVICE_AREAS, areaLabel, priceLabel, priceRangeOptions } from './shared/property-model.js';
 import { LeadError, leadRepository } from './shared/repositories/lead-repository.js';
@@ -84,7 +85,7 @@ function detailPage(property) {
     ? `<div class="price-pair"><div><span class="price-caption">Venda</span><h2>${esc(property.salePrice === null ? 'Sob consulta' : formatCurrency(property.salePrice))}</h2></div><div><span class="price-caption">Locação</span><h2>${esc(property.rentPrice === null ? 'Sob consulta' : `${formatCurrency(property.rentPrice)} / mês`)}</h2></div></div>`
     : `<h2>${esc(priceLabel(property))}</h2>`;
   const description = property.description.split(/\n{2,}/).filter((paragraph) => paragraph.trim()).map((paragraph, index) => `<p${index === 0 ? ' style="margin-top:30px"' : ''}>${esc(paragraph.trim()).replace(/\n/g, '<br>')}</p>`).join('');
-  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid"><img class="detail-image" src="${esc(coverOf(property))}" alt="${esc(property.title)}"><div class="detail-content"><div><p class="eyebrow">${offers}</p>${priceBlock}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p>${interestForm(property)}</aside></div></section>`;
+  return `<section class="page-hero"><p class="eyebrow">${esc(property.typeLabel)} · ${esc(property.neighborhood)}</p><h1>${esc(property.title)}</h1><p>${esc(property.city)} · Código ${esc(property.code)}</p></section><section class="detail-grid">${galleryMarkup(property, PHOTO_PLACEHOLDER)}<div class="detail-content"><div><p class="eyebrow">${offers}</p>${priceBlock}<div class="details-list"><span>${esc(property.bedrooms || 'A confirmar')} dormitórios</span><span>${esc(property.suites || 'A confirmar')} suítes</span><span>${esc(property.parking || 'A confirmar')} vagas</span><span>${esc(areaLabel(property))}</span></div>${description}</div><aside class="detail-sidebar"><h3>Tenho interesse</h3><p>Fale com a equipe da Intersul sobre este imóvel.</p>${interestForm(property)}</aside></div></section>`;
 }
 
 function interestForm(property) {
@@ -153,6 +154,7 @@ async function render() {
   if (token !== renderToken) return; // o usuário já navegou para outra página
   main.innerHTML = html;
   bindInteractions();
+  bindGallery();
   enhanceOwnerForm();
   window.scrollTo(0, 0);
 }

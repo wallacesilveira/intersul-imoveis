@@ -32,7 +32,7 @@ Documento de referência para a evolução do novo site da Intersul em uma plata
 
 ```text
 Intersul/
-├── index.html, app.js            site público
+├── index.html, app.js, gallery.js   site público (gallery.js: galeria e ampliação de fotos)
 ├── styles.css, overrides.css, brand-update.css, mockup-home.css
 ├── config.js                     agencySlug, URL e chave publicável do Supabase
 ├── shared/                       código comum a site e painel
@@ -197,7 +197,7 @@ Agenda, tarefas, funil de vendas, contratos, documentos, gestão de locação, f
 | 4 | Leads dos formulários do site | concluída |
 | 5 | Painel: login e contatos/proprietários | concluída |
 | 6 | Painel: imóveis (com proprietários e aprovação) | concluída |
-| 7 | Fotos | |
+| 7 | Fotos (envio otimizado, ordem, capa) e galeria no site | concluída |
 | 8 | Leads no painel | |
 | 9 | Dashboard de pendências | |
 | 10 | Usuários e aviso de lead por e-mail | |

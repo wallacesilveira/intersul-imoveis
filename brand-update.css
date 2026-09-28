@@ -44,3 +44,27 @@ h1,h2,h3,.display{font-family:'Manrope','DM Sans',Arial,sans-serif;font-weight:7
 .price-pair{display:flex;flex-wrap:wrap;gap:12px 48px}
 .price-caption{display:block;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .price-pair h2{font-size:clamp(30px,3.4vw,46px);margin:4px 0 0}
+/* Galeria do imóvel */
+[data-gallery-open]{cursor:zoom-in}
+.gallery-main{position:relative}
+.gallery-nav{position:absolute;top:50%;transform:translateY(-50%);width:46px;height:46px;border:0;border-radius:50%;background:rgba(255,255,255,.88);color:var(--navy);font-size:28px;line-height:1;cursor:pointer;box-shadow:0 6px 18px rgba(12,22,51,.18);transition:background .2s ease}
+.gallery-nav:hover{background:#fff}
+.gallery-prev{left:16px}
+.gallery-next{right:16px}
+.gallery-count{position:absolute;right:16px;bottom:16px;padding:4px 10px;border-radius:999px;background:rgba(12,22,51,.78);color:#fff;font-size:12px;font-weight:600}
+.gallery-thumbs{display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding-bottom:4px}
+.gallery-thumb{flex:0 0 96px;height:68px;padding:0;border:2px solid transparent;border-radius:6px;overflow:hidden;background:none;cursor:pointer;opacity:.7;transition:opacity .2s ease,border-color .2s ease}
+.gallery-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+.gallery-thumb:hover,.gallery-thumb.active{opacity:1}
+.gallery-thumb.active{border-color:var(--navy)}
+.lightbox{position:fixed;inset:0;z-index:200;display:grid;place-items:center;background:rgba(6,10,26,.94)}
+.lightbox figure{margin:0;display:grid;justify-items:center;gap:12px}
+.lightbox img{max-width:92vw;max-height:84vh;object-fit:contain}
+.lightbox figcaption{color:rgba(255,255,255,.75);font-size:13px}
+.lightbox-close,.lightbox-nav{position:absolute;border:0;background:rgba(255,255,255,.12);color:#fff;cursor:pointer;border-radius:50%;transition:background .2s ease}
+.lightbox-close:hover,.lightbox-nav:hover{background:rgba(255,255,255,.24)}
+.lightbox-close{top:20px;right:20px;width:44px;height:44px;font-size:28px;line-height:1}
+.lightbox-nav{top:50%;transform:translateY(-50%);width:54px;height:54px;font-size:34px;line-height:1}
+.lightbox-prev{left:20px}
+.lightbox-next{right:20px}
+@media(max-width:560px){.gallery-nav{width:38px;height:38px;font-size:24px}.gallery-thumb{flex-basis:72px;height:52px}.lightbox-nav{width:44px;height:44px;top:auto;bottom:24px;transform:none}}

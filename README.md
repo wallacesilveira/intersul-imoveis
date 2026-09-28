@@ -15,6 +15,7 @@ Não há build nem dependências.
 
 - `index.html`: shell semântico, header, footer e ponto de montagem.
 - `app.js`: roteamento por hash, páginas, formulários e interações do site.
+- `gallery.js`: galeria de fotos da página do imóvel, com ampliação em tela cheia.
 - `config.js`: endereço e chave pública do Supabase, identificação da imobiliária.
 - `shared/`: código comum ao site e ao futuro painel.
   - `format.js`: escape de HTML, formatação de preço, área e telefone.

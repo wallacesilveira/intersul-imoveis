@@ -162,6 +162,25 @@ fieldset:disabled .field input, fieldset:disabled .field select, fieldset:disabl
 .request-head { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
 .request-card .field { max-width: 480px; }
 
+/* Fotos */
+.section-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+.section-head h2 { margin: 0; }
+.photo-grid { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 16px; }
+.photo-item { position: relative; display: grid; gap: 8px; }
+.photo-item img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 8px; border: 1px solid var(--line); background: var(--paper); }
+.photo-item:first-child img { outline: 2px solid var(--champagne); outline-offset: 2px; }
+.photo-position { position: absolute; top: 8px; left: 8px; padding: 2px 8px; border-radius: 999px; background: rgba(12, 22, 51, .82); color: var(--white); font-size: 11px; font-weight: 700; }
+.photo-actions { display: flex; align-items: center; gap: 6px 10px; flex-wrap: wrap; }
+.icon-button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--white); color: var(--navy); font-size: 14px; cursor: pointer; }
+.icon-button:disabled { opacity: .35; cursor: default; }
+.link-danger { color: var(--danger); }
+.link-button.is-armed { color: var(--white); background: var(--danger); padding: 2px 6px; border-radius: 4px; text-decoration: none; }
+.drop-zone { margin-top: 18px; padding: 22px; border: 1.5px dashed var(--line); border-radius: var(--radius); text-align: center; color: var(--muted); font-size: 13px; transition: border-color .2s ease, background .2s ease; }
+.drop-zone.is-over { border-color: var(--navy); background: #eef1f7; color: var(--navy); }
+.upload-progress { margin-top: 16px; display: grid; gap: 6px; }
+.progress-bar { height: 6px; border-radius: 999px; background: var(--line); overflow: hidden; }
+.progress-bar span { display: block; height: 100%; background: var(--navy); transition: width .3s ease; }
+
 @media (max-width: 860px) {
   .admin-layout { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
   .sidebar { position: static; height: auto; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 14px 16px; }

@@ -6,6 +6,7 @@
 /* Imóveis: lista com filtros, cadastro/edição, vínculo com proprietários e alterações sujeitas a aprovação. */
 import { formatCep, formatCurrency, formatMoneyInput, onlyDigits, parseMoney } from '../../shared/format.js';
 import { DEFAULT_PROTECTED_PROPERTY_FIELDS, PROPERTY_STATUS, PROPERTY_TYPES, SERVICE_AREAS } from '../../shared/property-model.js';
+import { mountPhotoManager } from '../components/photo-manager.js';
 import { alertBox, bindConfirmButton, displayPhone, emptyState, errorMessage, esc, formatDateTime, memberName, routeQuery } from '../lib/ui.js';
 import { changeRequestsRepository } from '../repositories/change-requests.js';
 import { ownersRepository } from '../repositories/owners.js';
@@ -116,6 +117,7 @@ export async function propertyFormPage(view, ctx, id) {
     ${ctx.takeFlash()}<div data-feedback></div>
     ${!canEdit ? alertBox('Você pode consultar este imóvel, mas só o corretor responsável ou o administrador podem alterá-lo.', 'info') : ''}
     ${pendingBlock(pending, current, ctx)}
+    ${id ? '<div data-photos></div>' : '<p class="muted form-note">Depois de cadastrar o imóvel, você poderá adicionar as fotos.</p>'}
     <form class="property-form" data-property-form novalidate><fieldset${canEdit ? '' : ' disabled'}>
       <section class="card"><h2>Dados do imóvel</h2><div class="form-grid">
         <div class="field field-full"><label for="p-title">Título *</label><input id="p-title" name="title" value="${val('title')}" maxlength="200" required placeholder="Ex.: Casa com jardim em Interlagos"></div>
@@ -165,6 +167,7 @@ export async function propertyFormPage(view, ctx, id) {
   bindPropertyForm(view, ctx, id, current);
   if (id) bindOwnersBlock(view, ctx, property);
   bindPendingBlock(view, ctx, id);
+  if (id) await mountPhotoManager(view.querySelector('[data-photos]'), { ctx, propertyId: id, canEdit });
 
   const feedback = view.querySelector('[data-feedback]');
   const archiveButton = view.querySelector('[data-archive]');
