@@ -147,24 +147,38 @@ root.addEventListener('click', (event) => {
 
 window.addEventListener('hashchange', () => { if (!recovering) renderRoute(); });
 
-sessionRepository.onPasswordRecovery(() => {
-  recovering = true;
-  renderNewPassword(root, {
-    onDone: async () => {
-      recovering = false;
-      history.replaceState(null, '', window.location.pathname);
-      const user = await sessionRepository.currentUser();
-      if (user) await enter(user); else renderLogin(root, { onSignedIn: enter });
-    },
-  });
-});
+/*
+ * Links enviados por e-mail (recuperação de senha e convite) voltam com dados no fragmento da URL:
+ *   #access_token=...&type=recovery|invite   → link válido
+ *   #error=...&error_code=otp_expired         → link vencido ou já usado
+ * O index.html guarda esse fragmento antes de o Supabase limpá-lo (window.__authRedirect).
+ */
+const AUTH_LINK_ERRORS = {
+  otp_expired: 'O link expirou ou já foi usado. Peça um novo em "Esqueci minha senha".',
+  access_denied: 'O link não é mais válido. Peça um novo em "Esqueci minha senha".',
+};
+const authRedirect = new URLSearchParams((window.__authRedirect || '').replace(/^#/, ''));
 
-(async () => {
-  try {
-    const user = await sessionRepository.currentUser();
-    if (recovering) return;
-    if (user) await enter(user); else renderLogin(root, { onSignedIn: enter });
-  } catch (error) {
-    root.innerHTML = `<main class="auth-screen"><section class="auth-card">${alertBox(errorMessage(error))}</section></main>`;
+async function start() {
+  const linkError = authRedirect.get('error_code') || authRedirect.get('error');
+  const linkType = authRedirect.get('type');
+  if (linkError || linkType) history.replaceState(null, '', window.location.pathname);
+  if (linkError) {
+    renderLogin(root, { onSignedIn: enter, message: AUTH_LINK_ERRORS[linkError] || 'Não foi possível validar o link. Peça um novo em "Esqueci minha senha".' });
+    return;
   }
-})();
+  const user = await sessionRepository.currentUser();
+  if (user && (linkType === 'recovery' || linkType === 'invite')) {
+    recovering = true;
+    renderNewPassword(root, {
+      invite: linkType === 'invite',
+      onDone: async () => { recovering = false; await enter(user); },
+    });
+    return;
+  }
+  if (user) await enter(user); else renderLogin(root, { onSignedIn: enter });
+}
+
+start().catch((error) => {
+  root.innerHTML = `<main class="auth-screen"><section class="auth-card">${alertBox(errorMessage(error))}</section></main>`;
+});

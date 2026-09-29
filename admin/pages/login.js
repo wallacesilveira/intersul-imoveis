@@ -55,8 +55,8 @@ function renderForgotPassword(root, { onSignedIn, email }) {
   root.querySelector('[data-back]').addEventListener('click', () => renderLogin(root, { onSignedIn }));
 }
 
-export function renderNewPassword(root, { onDone }) {
-  root.innerHTML = authShell(`<h1>Nova senha</h1><form class="stack" data-new-password><div class="field"><label for="new-password">Nova senha</label><input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required></div><div class="field"><label for="new-password-confirm">Repita a nova senha</label><input id="new-password-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required></div><div data-feedback></div><button class="btn btn-primary btn-block" type="submit">Salvar senha</button></form>`);
+export function renderNewPassword(root, { onDone, invite = false }) {
+  root.innerHTML = authShell(`<h1>${invite ? 'Bem-vindo(a)! Crie sua senha' : 'Nova senha'}</h1>${invite ? '<p class="muted">Defina a senha que você vai usar para entrar no painel.</p>' : ''}<form class="stack" data-new-password><div class="field"><label for="new-password">Nova senha (mínimo 8 caracteres)</label><input id="new-password" name="password" type="password" autocomplete="new-password" minlength="8" required></div><div class="field"><label for="new-password-confirm">Repita a nova senha</label><input id="new-password-confirm" name="confirm" type="password" autocomplete="new-password" minlength="8" required></div><div data-feedback></div><button class="btn btn-primary btn-block" type="submit">Salvar senha</button></form>`);
   const form = root.querySelector('[data-new-password]');
   form.addEventListener('submit', (event) => {
     event.preventDefault();

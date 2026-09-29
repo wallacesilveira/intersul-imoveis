@@ -31,13 +31,6 @@ export const sessionRepository = {
     unwrap(await supabase.auth.updateUser({ password }));
   },
 
-  onPasswordRecovery(callback) {
-    supabase.auth.onAuthStateChange((event) => {
-      // o callback do Supabase não deve aguardar outras chamadas dele; por isso o setTimeout
-      if (event === 'PASSWORD_RECOVERY') setTimeout(callback, 0);
-    });
-  },
-
   /** Vínculos ativos do usuário. Na V1 o painel usa o primeiro. */
   async memberships(userId) {
     return unwrap(await supabase

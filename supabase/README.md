@@ -32,6 +32,20 @@ select a.id, u.id, 'admin', 'Seu nome'
  where a.slug = 'intersul' and u.email = 'seu@email.com';
 ```
 
+## E-mails (convites e recuperação de senha)
+
+O envio padrão do Supabase só entrega para membros da conta Supabase. A plataforma usa SMTP próprio:
+
+1. **Authentication → Emails → SMTP Settings**: ative o SMTP e informe servidor, porta, usuário e senha do e-mail remetente. Com Gmail: `smtp.gmail.com`, porta `465` e uma **senha de app** (16 letras, sem espaços), que exige verificação em duas etapas na conta Google.
+2. **Authentication → Emails → Templates**: cole os modelos em português de `email-templates/`:
+   - **Reset Password** ← `recuperar-senha.html`
+   - **Invite user** ← `convite.html`
+
+   O assunto sugerido está no comentário no topo de cada arquivo.
+3. **Authentication → URL Configuration**: *Site URL* com o endereço do painel publicado (`.../admin/`) e, em *Redirect URLs*, os endereços locais de desenvolvimento (ex.: `http://127.0.0.1:5500/**`).
+
+Os links enviados valem por tempo limitado (padrão: 1 hora) e só podem ser usados uma vez.
+
 ## Remover os imóveis fictícios
 
 Antes do uso real:

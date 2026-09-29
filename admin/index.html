@@ -18,6 +18,8 @@
 </head>
 <body>
   <div id="app"><div class="loading">Carregando…</div></div>
+  <!-- Guarda o retorno de links de e-mail (recuperação/convite) antes de o Supabase limpar a URL. -->
+  <script>window.__authRedirect = window.location.hash.includes('type=') || window.location.hash.includes('error') ? window.location.hash : '';</script>
   <script type="module" src="admin.js"></script>
 </body>
 </html>

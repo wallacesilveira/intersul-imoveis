@@ -8,5 +8,6 @@ import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js
 import { config } from '../config.js';
 
 export const supabase = createClient(config.supabase.url, config.supabase.publishableKey, {
-  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true },
+  // implicit: links de e-mail voltam com o tipo (recovery/invite) na URL, o que o painel usa para abrir "Nova senha"
+  auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true, flowType: 'implicit' },
 });
